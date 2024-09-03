@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "892503852311",
+    "project_id": "coffee-js-1ae30",
+    "storage_bucket": "coffee-js-1ae30.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:892503852311:android:ef1fd1bd5b1bb3bc59e352",
+        "android_client_info": {
+          "package_name": "org.coffeejs.geotrack"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAW8wdW0J5RXs20Wm1niKERmqfEcogqLiM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
