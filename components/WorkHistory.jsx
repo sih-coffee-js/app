@@ -7,8 +7,8 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from "@react-navigation/native";
 
-function DashboardHome({ navigation }) {
-    const mainnavigation = useNavigation();
+function WorkHistory({ route }) {
+    const { date } = route.params;
     const isFocused = useIsFocused();
     const [data, setData] = useState([]);
     const [hour, setHour] = useState('');
@@ -17,11 +17,10 @@ function DashboardHome({ navigation }) {
         async function fetchDetails() {
             const id = await getData('id', null, '');
             console.log(`id: ${id}`);
-            const date = new Date();
             try {
                 const { data } = await axios.post('/api/record/getdate', {
                     userId: id,
-                    date
+                    date: date.dateString
                 })
 
                 console.log(data);
@@ -34,27 +33,27 @@ function DashboardHome({ navigation }) {
         function calculateWorkingHours(data) {
             const checkIns = data.filter(event => event.type === 'CheckIn').sort((a, b) => new Date(a.time) - new Date(b.time));
             const checkOuts = data.filter(event => event.type === 'CheckOut').sort((a, b) => new Date(a.time) - new Date(b.time));
-        
+
             if (checkIns.length > checkOuts.length) {
                 checkOuts.push({
                     time: new Date().toISOString()
                 });
             }
-        
+
             let totalWorkingMilliseconds = 0;
-        
+
             for (let i = 0; i < checkIns.length && i < checkOuts.length; i++) {
                 const checkInTime = new Date(checkIns[i].time).getTime();
                 const checkOutTime = new Date(checkOuts[i].time).getTime();
-        
+
                 if (checkOutTime > checkInTime) {
                     totalWorkingMilliseconds += checkOutTime - checkInTime;
                 }
             }
-        
+
             const totalWorkingHours = Math.floor(totalWorkingMilliseconds / (1000 * 60 * 60));
             const totalWorkingMinutes = Math.floor((totalWorkingMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
-        
+
             setHour(totalWorkingHours.toString() + ' hrs ' + totalWorkingMinutes.toString() + ' mins');
         }
         if (isFocused) {
@@ -83,16 +82,15 @@ function DashboardHome({ navigation }) {
         }
     };
 
-
     return (
-        <Dashboard bg="#f5f7fc">
+        <View className="flex-1">
             <View style={styles.shadow} className="px-3 bg-white py-2 m-3 rounded-[10px]">
-                <Text className="text-[20px] text-[#343538] font-bold">Today's Status</Text>
+                <Text className="text-[20px] text-[#343538] font-bold">{new Date(date.dateString).toUTCString().split(' ').slice(0, 4).join(' ')}</Text>
                 <Text className="text-[16px] text-[#0E46A3] font-medium">Working for {hour}</Text>
             </View>
             <View className="flex-col justify-center pt-2 px-1">
                 {data.map((record) => (
-                    <View style={styles.shadow} key={record._id} className={`flex-1 flex-row justify-between p-4 mb-2 mx-1 rounded-[10px] ${record.type==='CheckIn'?'bg-[#b7f4d8cd]':'bg-[#ff0c0f33]'}`}>
+                    <View style={styles.shadow} key={record._id} className={`flex-row justify-between p-4 mb-2 mx-1 rounded-[10px] ${record.type === 'CheckIn' ? 'bg-[#b7f4d8cd]' : 'bg-[#ff0c0f33]'}`}>
                         <View>
                             <Text className="font-bold">{record.location.name}</Text>
                             <Text>{record.type}</Text>
@@ -101,7 +99,7 @@ function DashboardHome({ navigation }) {
                     </View>
                 ))}
             </View>
-        </Dashboard>
+        </View>
     );
 }
 
@@ -115,4 +113,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default DashboardHome;
+export default WorkHistory;

@@ -1,33 +1,128 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import { Calendar } from 'react-native-calendars';  
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { Calendar } from 'react-native-calendars';
 import { Picker } from '@react-native-picker/picker';
 import Dashboard from './Dashboard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 function DashboardWork({ navigation }) {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [calendarKey, setCalendarKey] = useState(0);
+  const [dataCalendar, setData] = useState({});
+  const navigate=useNavigation();
 
   const currentDate = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-01`;
 
   const handleMonthChange = (itemValue) => {
     setSelectedMonth(itemValue);
-    setCalendarKey(prevKey => prevKey + 1); 
+    setCalendarKey(prevKey => prevKey + 1);
   };
 
   const handleYearChange = (itemValue) => {
     setSelectedYear(itemValue);
-    setCalendarKey(prevKey => prevKey + 1); 
+    setCalendarKey(prevKey => prevKey + 1);
   };
 
+  function calculateWorkingHours(data) {
+    const checkIns = data.filter(event => event.type === 'CheckIn').sort((a, b) => new Date(a.time) - new Date(b.time));
+    const checkOuts = data.filter(event => event.type === 'CheckOut').sort((a, b) => new Date(a.time) - new Date(b.time));
+
+    if (checkIns.length > checkOuts.length) {
+      checkOuts.push({
+        time: new Date().toISOString()
+      });
+    }
+
+    let totalWorkingMilliseconds = 0;
+
+    for (let i = 0; i < checkIns.length && i < checkOuts.length; i++) {
+      const checkInTime = new Date(checkIns[i].time).getTime();
+      const checkOutTime = new Date(checkOuts[i].time).getTime();
+
+      if (checkOutTime > checkInTime) {
+        totalWorkingMilliseconds += checkOutTime - checkInTime;
+      }
+    }
+
+    const totalWorkingHours = Math.floor(totalWorkingMilliseconds / (1000 * 60 * 60));
+    const totalWorkingMinutes = Math.floor((totalWorkingMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+
+    return totalWorkingHours.toString() + ':' + totalWorkingMinutes.toString()
+  }
+
+  const getData = async (data, field, defaultvalue) => {
+    try {
+      var dat = await AsyncStorage.getItem(data);
+      console.log(dat);
+      if (field != null && dat != null) {
+        dat = JSON.parse(dat);
+        if (dat.hasOwnProperty(field)) {
+          return dat[field];
+        }
+        return defaultvalue;
+      }
+      if (dat != null) {
+        return dat;
+      }
+      return defaultvalue;
+    } catch (e) {
+      console.log(e);
+      return defaultvalue;
+    }
+  };
+
+  async function fetchDetails() {
+    const id = await getData('id', null, '');
+    console.log(`id: ${id}`);
+    try {
+      const { data } = await axios.post('/api/record/get', {
+        userId: id,
+      })
+
+      //console.log(data);
+      let cal = {};
+      for (let day of data) {
+        const dt = new Date(day.time);
+        const dat = dt.toLocaleDateString('fr-CA');
+        if (cal[dat]) {
+          cal[dat].push(day);
+        } else {
+          let kk = []
+          kk.push(day);
+          cal[dat] = kk;
+        }
+      }
+      let working = {};
+      for (let i in cal) {
+        working[i] = calculateWorkingHours(cal[i]);
+      }
+      setData(working);
+      // calculateWorkingHours(data);
+      // setData(data);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  useEffect(() => {
+    fetchDetails();
+  },[])
+
+  const navigateDetails = (date) => {
+    if(dataCalendar[date.dateString]) {
+      navigate.navigate('WorkHistory',{date});
+    }
+  }
+
   const renderDay = (date) => {
-    const textBelowDate = `Notes`;
     return (
-      <View style={styles.dayContainer}>
+      <TouchableOpacity className="w-[40px]" onPress={()=>{navigateDetails(date)}} style={styles.dayContainer}>
         <Text style={styles.dayText}>{date.day}</Text>
-        <Text style={styles.extraText}>{textBelowDate}</Text>
-      </View>
+        <Text className={`${dataCalendar[date.dateString]?'text-green-500':'text-[#a0a4b8]'}`} style={styles.extraText}>{dataCalendar[date.dateString]?dataCalendar[date.dateString]:"None"}</Text>
+      </TouchableOpacity>
     );
   };
 
@@ -62,22 +157,13 @@ function DashboardWork({ navigation }) {
           maxDate={'2024-12-31'}
           monthFormat={'yyyy MM'}
           hideArrows={false}
-          disabledDaysIndexes={[0, 6]}  
+          disabledDaysIndexes={[0, 6]}
           markedDates={{
             '2024-09-04': { selected: true, marked: true, dotColor: '#ff6347' },
             '2024-09-08': { marked: true, dotColor: '#4682b4' },
           }}
           dayComponent={({ date, state }) => renderDay(date)}
           style={styles.calendar}
-          theme={{
-            calendarBackground: '#f0f4f8',
-            textSectionTitleColor: '#b6c1cd',
-            todayTextColor: '#ff6347',
-            dayTextColor: '#2d4150',
-            arrowColor: '#4682b4',
-            selectedDayBackgroundColor: '#ff6347',
-            selectedDayTextColor: '#ffffff',
-          }}
         />
       </View>
     </Dashboard>
@@ -124,7 +210,7 @@ const styles = StyleSheet.create({
   },
   calendar: {
     width: width - 40,
-    height: height * 0.65,
+    height: height * 0.62,
     borderWidth: 1,
     borderColor: '#e0e0e0',
     borderRadius: 15,
@@ -150,7 +236,6 @@ const styles = StyleSheet.create({
   },
   extraText: {
     fontSize: 12,
-    color: '#a0a4b8',
     fontWeight: '500',
     marginTop: 4,
   },
