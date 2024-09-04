@@ -66,7 +66,7 @@ function DashboardWork({ navigation }) {
     const totalWorkingHours = Math.floor(totalWorkingMilliseconds / (1000 * 60 * 60));
     const totalWorkingMinutes = Math.floor((totalWorkingMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
 
-    return totalWorkingHours.toString() + ':' + totalWorkingMinutes.toString()
+    return totalWorkingHours.toString() + ':' + (totalWorkingMinutes<=9 ? `0${totalWorkingMinutes.toString()}`:totalWorkingMinutes.toString())
   }
 
   const getData = async (data, field, defaultvalue) => {
@@ -135,7 +135,7 @@ function DashboardWork({ navigation }) {
 
   const renderDay = (date) => {
     return (
-      <TouchableOpacity className="w-[40px]" onPress={() => { navigateDetails(date) }} style={styles.dayContainer}>
+      <TouchableOpacity className="w-[40px] -mb-1.5" onPress={() => { navigateDetails(date) }} style={styles.dayContainer}>
         <Text style={styles.dayText}>{date.day}</Text>
         <Text className={`${dataCalendar[date.dateString] ? 'text-green-500' : 'text-[#a0a4b8]'}`} style={styles.extraText}>{dataCalendar[date.dateString] ? dataCalendar[date.dateString] : "None"}</Text>
       </TouchableOpacity>
@@ -171,7 +171,7 @@ function DashboardWork({ navigation }) {
           current={currentDate}
           minDate={'1950-01-01'}
           maxDate={'2024-12-31'}
-          monthFormat={'yyyy MM'}
+          monthFormat={'MM-yyyy'}
           hideArrows={false}
           disabledDaysIndexes={[0, 6]}
           markedDates={{
@@ -226,11 +226,11 @@ const styles = StyleSheet.create({
   },
   calendar: {
     width: width - 40,
-    height: height * 0.62,
+    height: height * 0.58,
     borderWidth: 1,
     borderColor: '#e0e0e0',
     borderRadius: 15,
-    padding: 10,
+    padding: 15,
     backgroundColor: '#ffffff',
     elevation: 5,
     shadowColor: '#0000005F',
