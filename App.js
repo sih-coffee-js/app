@@ -9,7 +9,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-axios.defaults.baseURL = 'http://192.168.106.42:8000';
+axios.defaults.baseURL = 'http://192.168.47.56:8000';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
