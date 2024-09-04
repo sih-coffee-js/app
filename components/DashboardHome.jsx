@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from "@react-navigation/native";
+import LottieView from 'lottie-react-native';
 
 function DashboardHome({ navigation }) {
     const mainnavigation = useNavigation();
@@ -104,17 +105,22 @@ function DashboardHome({ navigation }) {
                 <Text className="text-[20px] text-[#343538] font-bold">Today's Status</Text>
                 <Text className="text-[16px] text-[#0E46A3] font-medium">Working for {hour}</Text>
             </View>
-            <View className="flex-col justify-center pt-2 px-1">
+
+            {data.length > 0 ? <View className="flex-col justify-center pt-2 px-1">
                 {data.map((record) => (
                     <View style={styles.shadow} key={record._id} className={`flex-1 flex-row justify-between p-4 mb-2 mx-1 rounded-[10px] ${record.type === 'CheckIn' ? 'bg-[#b7f4d8cd]' : 'bg-[#ff0c0f33]'}`}>
                         <View>
                             <Text className="font-bold">{record.location.name}</Text>
                             <Text>{record.type}</Text>
                         </View>
-                        <Text>{new Date(record.time).toLocaleTimeString()}</Text>
+                        <Text className="font-bold text-[#36454f]">{new Date(record.time).toLocaleTimeString()}</Text>
                     </View>
                 ))}
-            </View>
+            </View> :
+                <View>
+                    <LottieView source={require('../assets/lottie/404.json')} autoPlay loop className="w-72 h-72 mx-auto" />
+                    <Text className="text-center font-bold text-xl -mt-12 text-[#36454f]">No Resources Found</Text>
+                </View>}
         </Dashboard>
     );
 }
@@ -122,7 +128,7 @@ function DashboardHome({ navigation }) {
 const styles = StyleSheet.create({
     shadow: {
         elevation: 10,
-        shadowColor: "rgba(0,0,0,0.1)",
+        shadowColor: "rgba(0,0,0,0.2)",
         shadowRadius: 7,
         shadowOpacity: .5,
         shadowOffset: { width: 0, height: 10 }
