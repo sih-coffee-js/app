@@ -9,10 +9,57 @@ import {
 import axios from 'axios';
 import { toast } from '../utils/toast';
 import { useNavigation } from '@react-navigation/native';
+import * as Location from 'expo-location';
+import * as TaskManager from 'expo-task-manager';
+
+const LOCATION_TRACKING = 'location-tracking';
+
+var l1;
+var l2;
 
 function Dashboard(props) {
     const [name, setName] = useState('');
     const navigation = useNavigation();
+
+    const [locationStarted, setLocationStarted] = React.useState(true);
+
+    const startLocationTracking = async () => {
+        await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
+            accuracy: Location.Accuracy.Highest,
+            timeInterval: 5000,
+            distanceInterval: 0,
+        });
+        const hasStarted = await Location.hasStartedLocationUpdatesAsync(
+            LOCATION_TRACKING
+        );
+        setLocationStarted(hasStarted);
+        console.log('tracking started?', hasStarted);
+    };
+
+    const stopLocation = () => {
+        setLocationStarted(false);
+        TaskManager.isTaskRegisteredAsync(LOCATION_TRACKING)
+            .then((tracking) => {
+                if (tracking) {
+                    Location.stopLocationUpdatesAsync(LOCATION_TRACKING);
+                }
+            })
+    }
+
+    useEffect(() => {
+        const config = async () => {
+            let resf = await Location.requestForegroundPermissionsAsync();
+            let resb = await Location.requestBackgroundPermissionsAsync();
+            if (resf.status != 'granted' && resb.status !== 'granted') {
+                console.log('Permission to access location was denied');
+            } else {
+                console.log('Permission to access location granted');
+            }
+        };
+
+        config();
+        startLocationTracking();
+    }, []);
 
     useEffect(() => {
         async function fetchname() {
@@ -42,6 +89,7 @@ function Dashboard(props) {
                 toast("Unable to unregister device on server!!");
             }
         }
+        stopLocation();
         navigation.navigate('FrontPage');
     }
 
@@ -87,6 +135,25 @@ function Dashboard(props) {
         </ScrollView>
     );
 }
+
+TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
+    if (error) {
+        console.log('LOCATION_TRACKING task ERROR:', error);
+        return;
+    }
+    if (data) {
+        const { locations } = data;
+        let lat = locations[0].coords.latitude;
+        let long = locations[0].coords.longitude;
+
+        l1 = lat;
+        l2 = long;
+
+        console.log(
+            `${new Date(Date.now()).toLocaleString()}: ${lat},${long}`
+        );
+    }
+});
 
 const styles = StyleSheet.create({
     shadow: {
