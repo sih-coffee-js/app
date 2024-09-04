@@ -16,12 +16,13 @@ const LOCATION_TRACKING = 'location-tracking';
 
 var l1;
 var l2;
+var id;
 
 function Dashboard(props) {
     const [name, setName] = useState('');
     const navigation = useNavigation();
 
-    const [locationStarted, setLocationStarted] = React.useState(true);
+    const [locationStarted, setLocationStarted] = React.useState(false);
 
     const startLocationTracking = async () => {
         await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
@@ -47,17 +48,6 @@ function Dashboard(props) {
     }
 
     useEffect(() => {
-        const config = async () => {
-            let resf = await Location.requestForegroundPermissionsAsync();
-            let resb = await Location.requestBackgroundPermissionsAsync();
-            if (resf.status != 'granted' && resb.status !== 'granted') {
-                console.log('Permission to access location was denied');
-            } else {
-                console.log('Permission to access location granted');
-            }
-        };
-
-        config();
         startLocationTracking();
     }, []);
 
@@ -67,7 +57,12 @@ function Dashboard(props) {
             const ininame = fullname.split(' ')[0];
             setName(ininame);
         }
+        async function fetchId() {
+            const ids = await getData('id', null, '');
+            id = ids;
+        }
         fetchname();
+        fetchId();
     }, [])
 
     async function logout() {
@@ -148,10 +143,17 @@ TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
 
         l1 = lat;
         l2 = long;
+        //console.log(id);
 
-        console.log(
-            `${new Date(Date.now()).toLocaleString()}: ${lat},${long}`
-        );
+        try {
+            const res = await axios.post('/api/record/track', { userId: id, longitude: long, latitude: lat })
+            //console.log(res.data);
+        } catch (e) {
+            console.log(e);
+        }
+        // console.log(
+        //     `${new Date(Date.now()).toLocaleString()}: ${lat},${long}`
+        // );
     }
 });
 

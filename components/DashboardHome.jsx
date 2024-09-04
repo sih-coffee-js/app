@@ -9,6 +9,58 @@ import { useIsFocused } from "@react-navigation/native";
 
 function DashboardHome({ navigation }) {
     const mainnavigation = useNavigation();
+    const isFocused = useIsFocused();
+    const [data, setData] = useState([]);
+    const [hour, setHour] = useState('');
+
+    useEffect(() => {
+        async function fetchDetails() {
+            const id = await getData('id', null, '');
+            console.log(`id: ${id}`);
+            const date = new Date();
+            try {
+                const { data } = await axios.post('/api/record/getdate', {
+                    userId: id,
+                    date
+                })
+
+                console.log(data);
+                setData(data);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+        function calculateWorkingHours() {
+            const checkIns = data.filter(event => event.type === 'CheckIn').sort((a, b) => new Date(a.time) - new Date(b.time));
+            const checkOuts = data.filter(event => event.type === 'CheckOut').sort((a, b) => new Date(a.time) - new Date(b.time));
+        
+            if (checkIns.length > checkOuts.length) {
+                checkOuts.push({
+                    time: new Date().toISOString()
+                });
+            }
+        
+            let totalWorkingMilliseconds = 0;
+        
+            for (let i = 0; i < checkIns.length && i < checkOuts.length; i++) {
+                const checkInTime = new Date(checkIns[i].time).getTime();
+                const checkOutTime = new Date(checkOuts[i].time).getTime();
+        
+                if (checkOutTime > checkInTime) {
+                    totalWorkingMilliseconds += checkOutTime - checkInTime;
+                }
+            }
+        
+            const totalWorkingHours = Math.floor(totalWorkingMilliseconds / (1000 * 60 * 60));
+            const totalWorkingMinutes = Math.floor((totalWorkingMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+        
+            setHour(totalWorkingHours.toString() + ' hrs ' + totalWorkingMinutes.toString() + ' mins');
+        }
+        if (isFocused) {
+            fetchDetails();
+            calculateWorkingHours();
+        }
+    }, [isFocused])
 
     const getData = async (data, field, defaultvalue) => {
         try {
@@ -33,15 +85,30 @@ function DashboardHome({ navigation }) {
 
 
     return (
-        <Dashboard navigation={navigation} bg="#f5f7fc">
+        <Dashboard bg="#f5f7fc">
+            <View style={styles.shadow} className="px-3 bg-white py-2 m-3 rounded-[10px]">
+                <Text className="text-[20px] text-[#343538] font-bold">Today's Status</Text>
+                <Text className="text-[16px] text-[#0E46A3] font-medium">Working for {hour}</Text>
+            </View>
+            <View className="flex-col justify-center pt-2 px-1">
+                {data.map((record) => (
+                    <View style={styles.shadow} key={record._id} className={`flex-1 flex-row justify-between p-4 mb-2 mx-1 rounded-[10px] ${record.type==='CheckIn'?'bg-[#b7f4d8cd]':'bg-[#ff0c0f33]'}`}>
+                        <View>
+                            <Text className="font-bold">{record.location.name}</Text>
+                            <Text>{record.type}</Text>
+                        </View>
+                        <Text>{new Date(record.time).toLocaleTimeString()}</Text>
+                    </View>
+                ))}
+            </View>
         </Dashboard>
     );
 }
 
 const styles = StyleSheet.create({
     shadow: {
-        elevation: 5,
-        shadowColor: "rgba(0,0,0,.3)",
+        elevation: 10,
+        shadowColor: "rgba(0,0,0,0.1)",
         shadowRadius: 7,
         shadowOpacity: .5,
         shadowOffset: { width: 0, height: 10 }

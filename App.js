@@ -8,6 +8,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 
 axios.defaults.baseURL = 'http://192.168.106.42:8000';
 
@@ -103,6 +104,20 @@ export default function App() {
       responseListener.current &&
         Notifications.removeNotificationSubscription(responseListener.current);
     };
+  }, []);
+
+  useEffect(() => {
+    const config = async () => {
+        let resf = await Location.requestForegroundPermissionsAsync();
+        let resb = await Location.requestBackgroundPermissionsAsync();
+        if (resf.status != 'granted' && resb.status !== 'granted') {
+            console.log('Permission to access location was denied');
+        } else {
+            console.log('Permission to access location granted');
+        }
+    };
+  
+    config();
   }, []);
 
   useEffect(() => {
