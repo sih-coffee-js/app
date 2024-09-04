@@ -6,13 +6,15 @@ import Dashboard from './Dashboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { useIsFocused } from "@react-navigation/native";
 
 function DashboardWork({ navigation }) {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [calendarKey, setCalendarKey] = useState(0);
   const [dataCalendar, setData] = useState({});
-  const navigate=useNavigation();
+  const isFocused = useIsFocused();
+  const navigate = useNavigation();
 
   const currentDate = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-01`;
 
@@ -31,9 +33,23 @@ function DashboardWork({ navigation }) {
     const checkOuts = data.filter(event => event.type === 'CheckOut').sort((a, b) => new Date(a.time) - new Date(b.time));
 
     if (checkIns.length > checkOuts.length) {
-      checkOuts.push({
-        time: new Date().toISOString()
-      });
+      const lastCheckInDate = new Date(checkIns[checkIns.length - 1].time);
+      const currentDate = new Date();
+      if (
+        lastCheckInDate.getFullYear() !== currentDate.getFullYear() ||
+        lastCheckInDate.getMonth() !== currentDate.getMonth() ||
+        lastCheckInDate.getDate() !== currentDate.getDate()
+      ) {
+        const endOfDay = new Date(lastCheckInDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        checkOuts.push({
+          time: endOfDay.toISOString()
+        });
+      } else {
+        checkOuts.push({
+          time: currentDate.toISOString()
+        });
+      }
     }
 
     let totalWorkingMilliseconds = 0;
@@ -100,28 +116,28 @@ function DashboardWork({ navigation }) {
         working[i] = calculateWorkingHours(cal[i]);
       }
       setData(working);
-      // calculateWorkingHours(data);
-      // setData(data);
     } catch (e) {
       console.log(e);
     }
   }
 
   useEffect(() => {
-    fetchDetails();
-  },[])
+    if (isFocused) {
+      fetchDetails();
+    }
+  }, [isFocused])
 
   const navigateDetails = (date) => {
-    if(dataCalendar[date.dateString]) {
-      navigate.navigate('WorkHistory',{date});
+    if (dataCalendar[date.dateString]) {
+      navigate.navigate('WorkHistory', { date });
     }
   }
 
   const renderDay = (date) => {
     return (
-      <TouchableOpacity className="w-[40px]" onPress={()=>{navigateDetails(date)}} style={styles.dayContainer}>
+      <TouchableOpacity className="w-[40px]" onPress={() => { navigateDetails(date) }} style={styles.dayContainer}>
         <Text style={styles.dayText}>{date.day}</Text>
-        <Text className={`${dataCalendar[date.dateString]?'text-green-500':'text-[#a0a4b8]'}`} style={styles.extraText}>{dataCalendar[date.dateString]?dataCalendar[date.dateString]:"None"}</Text>
+        <Text className={`${dataCalendar[date.dateString] ? 'text-green-500' : 'text-[#a0a4b8]'}`} style={styles.extraText}>{dataCalendar[date.dateString] ? dataCalendar[date.dateString] : "None"}</Text>
       </TouchableOpacity>
     );
   };

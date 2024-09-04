@@ -35,10 +35,24 @@ function WorkHistory({ route }) {
             const checkOuts = data.filter(event => event.type === 'CheckOut').sort((a, b) => new Date(a.time) - new Date(b.time));
 
             if (checkIns.length > checkOuts.length) {
-                checkOuts.push({
-                    time: new Date().toISOString()
-                });
-            }
+                const lastCheckInDate = new Date(checkIns[checkIns.length - 1].time);
+                const currentDate = new Date();
+                if (
+                  lastCheckInDate.getFullYear() !== currentDate.getFullYear() ||
+                  lastCheckInDate.getMonth() !== currentDate.getMonth() ||
+                  lastCheckInDate.getDate() !== currentDate.getDate()
+                ) {
+                  const endOfDay = new Date(lastCheckInDate);
+                  endOfDay.setHours(23, 59, 59, 999);
+                  checkOuts.push({
+                    time: endOfDay.toISOString()
+                  });
+                } else {
+                  checkOuts.push({
+                    time: currentDate.toISOString()
+                  });
+                }
+              }
 
             let totalWorkingMilliseconds = 0;
 

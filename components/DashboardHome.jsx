@@ -34,27 +34,41 @@ function DashboardHome({ navigation }) {
         function calculateWorkingHours(data) {
             const checkIns = data.filter(event => event.type === 'CheckIn').sort((a, b) => new Date(a.time) - new Date(b.time));
             const checkOuts = data.filter(event => event.type === 'CheckOut').sort((a, b) => new Date(a.time) - new Date(b.time));
-        
+
             if (checkIns.length > checkOuts.length) {
-                checkOuts.push({
-                    time: new Date().toISOString()
-                });
+                const lastCheckInDate = new Date(checkIns[checkIns.length - 1].time);
+                const currentDate = new Date();
+                if (
+                    lastCheckInDate.getFullYear() !== currentDate.getFullYear() ||
+                    lastCheckInDate.getMonth() !== currentDate.getMonth() ||
+                    lastCheckInDate.getDate() !== currentDate.getDate()
+                ) {
+                    const endOfDay = new Date(lastCheckInDate);
+                    endOfDay.setHours(23, 59, 59, 999);
+                    checkOuts.push({
+                        time: endOfDay.toISOString()
+                    });
+                } else {
+                    checkOuts.push({
+                        time: currentDate.toISOString()
+                    });
+                }
             }
-        
+
             let totalWorkingMilliseconds = 0;
-        
+
             for (let i = 0; i < checkIns.length && i < checkOuts.length; i++) {
                 const checkInTime = new Date(checkIns[i].time).getTime();
                 const checkOutTime = new Date(checkOuts[i].time).getTime();
-        
+
                 if (checkOutTime > checkInTime) {
                     totalWorkingMilliseconds += checkOutTime - checkInTime;
                 }
             }
-        
+
             const totalWorkingHours = Math.floor(totalWorkingMilliseconds / (1000 * 60 * 60));
             const totalWorkingMinutes = Math.floor((totalWorkingMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
-        
+
             setHour(totalWorkingHours.toString() + ' hrs ' + totalWorkingMinutes.toString() + ' mins');
         }
         if (isFocused) {
@@ -92,7 +106,7 @@ function DashboardHome({ navigation }) {
             </View>
             <View className="flex-col justify-center pt-2 px-1">
                 {data.map((record) => (
-                    <View style={styles.shadow} key={record._id} className={`flex-1 flex-row justify-between p-4 mb-2 mx-1 rounded-[10px] ${record.type==='CheckIn'?'bg-[#b7f4d8cd]':'bg-[#ff0c0f33]'}`}>
+                    <View style={styles.shadow} key={record._id} className={`flex-1 flex-row justify-between p-4 mb-2 mx-1 rounded-[10px] ${record.type === 'CheckIn' ? 'bg-[#b7f4d8cd]' : 'bg-[#ff0c0f33]'}`}>
                         <View>
                             <Text className="font-bold">{record.location.name}</Text>
                             <Text>{record.type}</Text>
