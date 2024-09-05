@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Picker } from '@react-native-picker/picker';
 import User from './User';
@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useIsFocused } from "@react-navigation/native";
 import { useNavigation } from '@react-navigation/native';
+import { LineChart } from 'react-native-chart-kit';
 
 function DashboardWork({ navigation }) {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
@@ -127,7 +128,7 @@ function DashboardWork({ navigation }) {
     }
   }, [isFocused])
 
-  const navigateDetails =  async (date) => {
+  const navigateDetails = async (date) => {
     if (dataCalendar[date.dateString]) {
       const id = await getData('userid', null, '');
       mainnavigation.navigate('WorkHistory', { date, id });
@@ -141,6 +142,22 @@ function DashboardWork({ navigation }) {
         <Text className={`${dataCalendar[date.dateString] ? 'text-green-500' : 'text-[#a0a4b8]'}`} style={styles.extraText}>{dataCalendar[date.dateString] ? dataCalendar[date.dateString] : "None"}</Text>
       </TouchableOpacity>
     );
+  };
+
+  const convertToHoursDecimal = (timeString) => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    return hours + minutes / 60;
+  };
+
+  const chartData = {
+    labels: Object.keys(dataCalendar).map(date => date.slice(5)),
+    datasets: [
+      {
+        data: Object.values(dataCalendar).map(time => convertToHoursDecimal(time)),
+        strokeWidth: 2,
+        color: () => `#4682b4`,
+      }
+    ]
   };
 
   return (
@@ -183,6 +200,31 @@ function DashboardWork({ navigation }) {
           style={styles.calendar}
         />
       </View>
+      <Text className="text-center mt-5" style={styles.title}>Work Graph</Text>
+      {Object.keys(dataCalendar).length > 0 && <ScrollView horizontal>
+        <View className="mt-1 mx-2 rounded-[100px]">
+          <LineChart
+            data={chartData}
+            width={Dimensions.get('window').width * 1.5} // Larger width for scrollable chart
+            height={220}
+            chartConfig={{
+              backgroundColor: '#f0f4f8',
+              backgroundGradientFrom: '#ffffff',
+              backgroundGradientTo: '#ffffff',
+              decimalPlaces: 2,
+              borderRadius: 16,
+              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              propsForDots: {
+                r: '4',
+                strokeWidth: '2',
+                stroke: '#4682b4'
+              }
+            }}
+            bezier
+          />
+        </View>
+      </ScrollView>}
     </User>
   );
 }

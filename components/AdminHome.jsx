@@ -119,8 +119,6 @@ function AdminHome({ navigation }) {
                     <LottieView source={require('../assets/lottie/404.json')} autoPlay loop className="w-72 h-72 mx-auto" />
                     <Text className="text-center font-bold text-xl -mt-12 text-[#36454f]">No Resources Found</Text>
                 </View>}
-
-            <View className="p-8"></View>
         </AdminDashboard>
     );
 }

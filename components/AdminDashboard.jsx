@@ -88,6 +88,7 @@ function AdminDashboard(props) {
                 </TouchableOpacity>
             </View>
             {props.children}
+            <View className="p-8"></View>
         </ScrollView>
     );
 }
