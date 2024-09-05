@@ -27,46 +27,7 @@ function AdminLocations({ navigation }) {
         console.log(e);
       }
     }
-    function calculateWorkingHours(data) {
-      const checkIns = data.filter(event => event.type === 'CheckIn').sort((a, b) => new Date(a.time) - new Date(b.time));
-      const checkOuts = data.filter(event => event.type === 'CheckOut').sort((a, b) => new Date(a.time) - new Date(b.time));
 
-      if (checkIns.length > checkOuts.length) {
-        const lastCheckInDate = new Date(checkIns[checkIns.length - 1].time);
-        const currentDate = new Date();
-        if (
-          lastCheckInDate.getFullYear() !== currentDate.getFullYear() ||
-          lastCheckInDate.getMonth() !== currentDate.getMonth() ||
-          lastCheckInDate.getDate() !== currentDate.getDate()
-        ) {
-          const endOfDay = new Date(lastCheckInDate);
-          endOfDay.setHours(23, 59, 59, 999);
-          checkOuts.push({
-            time: endOfDay.toISOString()
-          });
-        } else {
-          checkOuts.push({
-            time: currentDate.toISOString()
-          });
-        }
-      }
-
-      let totalWorkingMilliseconds = 0;
-
-      for (let i = 0; i < checkIns.length && i < checkOuts.length; i++) {
-        const checkInTime = new Date(checkIns[i].time).getTime();
-        const checkOutTime = new Date(checkOuts[i].time).getTime();
-
-        if (checkOutTime > checkInTime) {
-          totalWorkingMilliseconds += checkOutTime - checkInTime;
-        }
-      }
-
-      const totalWorkingHours = Math.floor(totalWorkingMilliseconds / (1000 * 60 * 60));
-      const totalWorkingMinutes = Math.floor((totalWorkingMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
-
-      setHour(totalWorkingHours.toString() + ' hrs ' + totalWorkingMinutes.toString() + ' mins');
-    }
     if (isFocused) {
       fetchDetails();
     }
@@ -93,43 +54,97 @@ function AdminLocations({ navigation }) {
     }
   };
 
-  async function Detailed(user,id) {
-    mainnavigation.navigate('WorkLocation',{presentdata:user,id});
+  async function Detailed(user, id) {
+    mainnavigation.navigate('WorkLocation', { presentdata: user, id });
   }
 
   return (
     <AdminDashboard bg="#f5f7fc">
-      <View style={styles.shadow} className="px-3 bg-white py-2 m-3 rounded-[10px]">
-        <Text className="text-[20px] text-[#343538] font-bold">Locations</Text>
+      <View style={[styles.shadow, styles.headerContainer]}>
+        <Text style={styles.headerText}>Locations</Text>
       </View>
 
-      {data.length > 0 ? <View className="flex-col justify-center pt-2 -mt-3">
-        <View className="flex-col justify-center px-1">
+      {data.length > 0 ? (
+        <View style={styles.locationList}>
           {data.map((dat, index) => (
-            <View style={styles.shadow} key={index} className="p-4 bg-white mb-2 mx-2 rounded-[10px] ">
-              <TouchableOpacity onPress={()=>{Detailed(dat.users,dat.location._id)}} className="h-auto w-full">
-                <Text className="font-bold">{dat.location.name}</Text>
-                <Text className="font-medium">Today's Attendance: {dat.users.length}</Text>
+            <View key={index} style={[styles.shadow, styles.locationCard]}>
+              <TouchableOpacity onPress={() => { Detailed(dat.users, dat.location._id) }} style={styles.touchableCard}>
+                <Text style={styles.locationName}>{dat.location.name}</Text>
+                <Text style={styles.attendanceText}>Today's Attendance: {dat.users.length}</Text>
               </TouchableOpacity>
             </View>
           ))}
         </View>
-      </View> :
-        <View>
-          <LottieView source={require('../assets/lottie/404.json')} autoPlay loop className="w-72 h-72 mx-auto" />
-          <Text className="text-center font-bold text-xl -mt-12 text-[#36454f]">No Users Found</Text>
-        </View>}
+      ) : (
+        <View style={styles.noUsersContainer}>
+          <LottieView source={require('../assets/lottie/404.json')} autoPlay loop style={styles.lottieAnimation} />
+          <Text style={styles.noUsersText}>No Users Found</Text>
+        </View>
+      )}
     </AdminDashboard>
   );
 }
 
 const styles = StyleSheet.create({
   shadow: {
-    elevation: 10,
-    shadowColor: "rgba(0,0,0,0.2)",
-    shadowRadius: 7,
-    shadowOpacity: .5,
-    shadowOffset: { width: 0, height: 10 }
+    elevation: 12,
+    shadowColor: "rgba(0,0,0,0.9)",
+    shadowRadius: 20,
+    shadowOpacity: 0.5,
+    shadowOffset: { width: 0, height: 10 },
+  },
+  headerContainer: {
+    padding: 15,
+    backgroundColor: '#fff',
+    margin: 12,
+    borderRadius: 10,
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#343538',
+  },
+  locationList: {
+    padding: 10,
+    marginTop: -15,
+  },
+  locationCard: {
+    backgroundColor: '#fff',
+    marginBottom: 10,
+    padding: 15,
+    borderRadius: 10,
+    marginHorizontal: 10,
+  },
+  touchableCard: {
+    width: '100%',
+    height: 'auto',
+  },
+  locationName: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 5,
+  },
+  attendanceText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0E46A3',
+  },
+  noUsersContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  noUsersText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#36454f',
+    marginTop: -32,
+    textAlign: 'center',
+  },
+  lottieAnimation: {
+    width: 250,
+    height: 250,
   },
 });
 
