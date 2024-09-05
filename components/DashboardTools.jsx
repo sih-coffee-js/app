@@ -2,40 +2,56 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import Dashboard from './Dashboard';
 import LinearGradient from 'react-native-linear-gradient';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function DashboardTools({ navigation }) {
-    const users = [
-        {
-            name: "Kaveri Kitchen",
-            latitude: 15.4589,  
-            longitude: 75.0078,
-        },
-        {
-            name: "Rohan Sharma",
-            latitude: 28.6315,  
-            longitude: 77.2167,
-        },
-        {
-            name: "Meera Patel",
-            latitude: 22.3072,  
-            longitude: 73.1812,
-        },
-        {
-            name: "Amit Singh",
-            latitude: 19.0760,  
-            longitude: 72.8777,
-        },
-        {
-            name: "Pooja Desai",
-            latitude: 20.2961,  
-            longitude: 85.8245,
-        },
-        {
-            name: "Suresh Kumar",
-            latitude: 12.9716,  
-            longitude: 77.5946,
-        },
-    ];
+    // const users = [
+    //     {
+    //         name: "Kaveri Kitchen",
+    //         latitude: 15.4589,  
+    //         longitude: 75.0078,
+    //     },
+    //     {
+    //         name: "Rohan Sharma",
+    //         latitude: 28.6315,  
+    //         longitude: 77.2167,
+    //     },
+    //     {
+    //         name: "Meera Patel",
+    //         latitude: 22.3072,  
+    //         longitude: 73.1812,
+    //     },
+    //     {
+    //         name: "Amit Singh",
+    //         latitude: 19.0760,  
+    //         longitude: 72.8777,
+    //     },
+    //     {
+    //         name: "Pooja Desai",
+    //         latitude: 20.2961,  
+    //         longitude: 85.8245,
+    //     },
+    //     {
+    //         name: "Suresh Kumar",
+    //         latitude: 12.9716,  
+    //         longitude: 77.5946,
+    //     },
+    // ];
+
+    const [users, setUsers] = useState([]);
+
+    useEffect(()=>{
+        async function fetchlocations() {
+            try {
+                const { data } = await axios.get('/api/location/getall')
+                setUsers(data);
+            } catch(e) {
+                console.log(e);
+            }
+        }
+        fetchlocations();
+    },[])
 
     const openMapWithDirections = (latitude, longitude) => {
         const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=driving`;
