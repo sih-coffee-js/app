@@ -69,8 +69,13 @@ function FrontPage() {
     useEffect(() => {
         async function IsLogin() {
             const token = await getData('token', null, false);
-            if (token&&token!='') {
-                navigation.navigate('DashboardHome');
+            const role = await getData('user', 'role', 'User');
+            if (token && token != '') {
+                if (role == 'User') {
+                    navigation.navigate('DashboardHome');
+                } else {
+                    navigation.navigate('AdminHome');
+                }
             }
         }
         IsLogin();
@@ -88,7 +93,7 @@ function FrontPage() {
         try {
             await GoogleSignin.hasPlayServices();
             const guser = await GoogleSignin.signIn();
-            const user=guser.data;
+            const user = guser.data;
             const res = await axios.post('/api/auth/google',
                 {
                     name: user.user.name,
@@ -102,7 +107,11 @@ function FrontPage() {
                 const { data } = res;
                 console.log(data);
                 await storeData(data.token, data._id, { fullName: data.fullName, email: data.email, phoneNo: data.phoneNo, profilePicture: data.profilePicture, role: data.role });
-                navigation.navigate('DashboardHome')
+                if (data.role === "User") {
+                    navigation.navigate('DashboardHome')
+                } else {
+                    navigation.navigate('AdminHome')
+                }
             } else {
                 toast(res.data.message);
             }

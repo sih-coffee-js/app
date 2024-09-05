@@ -90,7 +90,11 @@ const Register = () => {
                 toast("User is registered");
                 const { success, ...rest } = data;
                 await storeData(rest.token, rest._id, { fullName: rest.fullName, email: rest.email, phoneNo: rest.phoneNo, profilePicture: rest.profilePicture, role: rest.role });
-                navigation.navigate('DashBoardHome');
+                if (rest.role === "User") {
+                    navigation.navigate('DashboardHome')
+                } else {
+                    navigation.navigate('AdminHome')
+                }
             }
         } catch (error) {
             toast("Internal Error");
