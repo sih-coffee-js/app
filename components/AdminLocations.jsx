@@ -94,6 +94,7 @@ function AdminLocations({ navigation }) {
   };
 
   async function Detailed(user) {
+    console.log(user);
     const id = await getData('id', null, '');
     mainnavigation.navigate('WorkLocation',{presentdata:user,id});
   }
