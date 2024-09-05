@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Dashboard from './Dashboard';
+import User from './User';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -9,15 +9,13 @@ import { useIsFocused } from "@react-navigation/native";
 import LottieView from 'lottie-react-native';
 
 function DashboardHome({ navigation }) {
-    const mainnavigation = useNavigation();
     const isFocused = useIsFocused();
     const [data, setData] = useState([]);
     const [hour, setHour] = useState('');
-    const [refresh, setRefresh] = useState(true);
 
     useEffect(() => {
         async function fetchDetails() {
-            const id = await getData('id', null, '');
+            const id = await getData('userid', null, '');
             console.log(`id: ${id}`);
             const date = new Date();
             try {
@@ -76,7 +74,7 @@ function DashboardHome({ navigation }) {
         if (isFocused) {
             fetchDetails();
         }
-    }, [isFocused,refresh])
+    }, [isFocused])
 
     const getData = async (data, field, defaultvalue) => {
         try {
@@ -101,7 +99,7 @@ function DashboardHome({ navigation }) {
 
 
     return (
-        <Dashboard bg="#f5f7fc" refresh={refresh} setRefresh={setRefresh}>
+        <User bg="#f5f7fc">
             <View style={styles.shadow} className="px-3 bg-white py-2 m-3 rounded-[10px]">
                 <Text className="text-[20px] text-[#343538] font-bold">Today's Status</Text>
                 <Text className="text-[16px] text-[#0E46A3] font-medium">Working for {hour}</Text>
@@ -122,7 +120,7 @@ function DashboardHome({ navigation }) {
                     <LottieView source={require('../assets/lottie/404.json')} autoPlay loop className="w-72 h-72 mx-auto" />
                     <Text className="text-center font-bold text-xl -mt-12 text-[#36454f]">No Resources Found</Text>
                 </View>}
-        </Dashboard>
+        </User>
     );
 }
 

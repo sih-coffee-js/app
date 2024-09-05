@@ -47,7 +47,6 @@ function AdminDashboard(props) {
                 toast("Unable to unregister device on server!!");
             }
         }
-        stopLocation();
         navigation.navigate('FrontPage');
     }
 

@@ -108,7 +108,7 @@ function AdminHome({ navigation }) {
                 {data.map((record) => (
                     <View style={styles.shadow} key={record._id} className={`flex-1 flex-row justify-between p-4 mb-2 mx-1 rounded-[10px] ${record.type === 'CheckIn' ? 'bg-[#b7f4d8cd]' : 'bg-[#ff0c0f33]'}`}>
                         <View>
-                            <Text className="font-bold">{record.user.fullName}</Text>
+                            {record.user&&<Text className="font-bold">{record.user.fullName}</Text>}
                             <Text>{`${record.type} at ${record.location.name}`}</Text>
                         </View>
                         <Text className="font-bold text-[#36454f]">{new Date(record.time).toLocaleTimeString()}</Text>
@@ -119,6 +119,8 @@ function AdminHome({ navigation }) {
                     <LottieView source={require('../assets/lottie/404.json')} autoPlay loop className="w-72 h-72 mx-auto" />
                     <Text className="text-center font-bold text-xl -mt-12 text-[#36454f]">No Resources Found</Text>
                 </View>}
+
+            <View className="p-8"></View>
         </AdminDashboard>
     );
 }

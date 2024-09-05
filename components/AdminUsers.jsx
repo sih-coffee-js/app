@@ -55,9 +55,16 @@ function AdminUsers({ navigation }) {
     }
   };
 
+
+  async function DetailedView(user) {
+    console.log(user);
+    console.log('------')
+    await AsyncStorage.setItem('userid', user);
+    mainnavigation.navigate('UserHome');
+  }
+  
   return (
     <AdminDashboard bg="#f5f7fc">
-      
       <LinearGradient colors={['#ffffff', '#ffffff']} style={[styles.shadow, styles.headerContainer]}>
         <Text style={styles.headerText}>Users</Text>
       </LinearGradient>
@@ -67,7 +74,7 @@ function AdminUsers({ navigation }) {
           <View style={styles.userList}>
             {data.map((user, index) => (
               <View style={[styles.shadow, styles.userCard]} key={index}>
-                <TouchableOpacity style={styles.userCardContent} activeOpacity={0.9}>
+                <TouchableOpacity style={styles.userCardContent} activeOpacity={0.9} onPress={()=>{DetailedView(user._id)}}>
                   <Image 
                     source={{ uri: user.profilePicture }} 
                     style={styles.userImage} 

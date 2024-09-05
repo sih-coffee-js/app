@@ -93,6 +93,11 @@ function AdminLocations({ navigation }) {
     }
   };
 
+  async function Detailed(user) {
+    console.log(user);
+    const id = await getData('id', null, '');
+    mainnavigation.navigate('WorkLocation',{presentdata:user,id});
+  }
 
   return (
     <AdminDashboard bg="#f5f7fc">
@@ -104,9 +109,9 @@ function AdminLocations({ navigation }) {
         <View className="flex-col justify-center px-1">
           {data.map((dat, index) => (
             <View style={styles.shadow} key={index} className="p-4 bg-white mb-2 mx-2 rounded-[10px] ">
-              <TouchableOpacity className="h-auto w-full">
+              <TouchableOpacity onPress={()=>{Detailed(dat.users)}} className="h-auto w-full">
                 <Text className="font-bold">{dat.location.name}</Text>
-                <Text className="font-medium">Today's Attendance: {dat.users}</Text>
+                <Text className="font-medium">Today's Attendance: {dat.users.length}</Text>
               </TouchableOpacity>
             </View>
           ))}

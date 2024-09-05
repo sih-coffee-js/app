@@ -48,9 +48,10 @@ function DashboardTools({ navigation }) {
                 {users.map((user, index) => (
                     <LinearGradient 
                         key={index}
-                        colors={['#1b1b1b', '#364F6B']} // Shades of black
-                        style={[styles.card, styles.shadow]}>
-                        <TouchableOpacity onPress={() => openMapWithDirections(user.latitude, user.longitude)}>
+                        colors={['#ffffff', '#ffffff']} 
+                        style={[styles.card, styles.shadow]}
+                        className={`${index===users.length-1?'mb-8':''}`}>
+                        <TouchableOpacity  onPress={() => openMapWithDirections(user.latitude, user.longitude)}>
                             <Text style={styles.title}>{user.name}</Text>
                             <Text style={styles.directionText}>Tap to Get Directions</Text>
                         </TouchableOpacity>
@@ -63,37 +64,38 @@ function DashboardTools({ navigation }) {
 
 const styles = StyleSheet.create({
     container: {
-        padding: 20,
+        padding: 0,
         flex: 1,
         justifyContent: 'center',
+        
     },
     card: {
-        borderRadius: 20,
-        padding: 18,
-        marginVertical: 12,
-        width: '85%',
+        borderRadius: 12,
+        padding: 6,
+        marginVertical: 6,
+        width: '90%',
         alignSelf: 'center',
         backgroundColor: '#2a2a2a',
     },
     title: {
         fontSize: 22,
         fontWeight: '800',
-        color: '#e0e0e0',
+        color: '#343538',
         textAlign: 'center',
         marginBottom: 12,
     },
     directionText: {
         textAlign: 'center',
-        color: '#bfbfbf',
+        color: '#0E46A3',
         fontWeight: '600',
-        fontSize: 18,
+        fontSize: 16,
     },
     shadow: {
         elevation: 12,
         shadowColor: "rgba(0, 0, 0, 0.9)",
         shadowRadius: 20,
         shadowOpacity: 0.8,
-        shadowOffset: { width: 0, height: 15 },
+        shadowOffset: { width: 0, height: 20 },
     },
 });
 

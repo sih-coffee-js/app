@@ -8,15 +8,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from "@react-navigation/native";
 
 function WorkHistory({ route }) {
-    const { date } = route.params;
+    const { date, id } = route.params;
     const isFocused = useIsFocused();
     const [data, setData] = useState([]);
     const [hour, setHour] = useState('');
 
     useEffect(() => {
         async function fetchDetails() {
-            const id = await getData('id', null, '');
-            console.log(`id: ${id}`);
             try {
                 const { data } = await axios.post('/api/record/getdate', {
                     userId: id,
