@@ -44,7 +44,7 @@ function DashboardTools({ navigation }) {
 
     return (
         <Dashboard navigation={navigation} bg="#f5f7fc">
-            {/* <View style={styles.container}>
+            <View style={styles.container}>
                 {users.map((user, index) => (
                     <LinearGradient 
                         key={index}
@@ -56,7 +56,7 @@ function DashboardTools({ navigation }) {
                         </TouchableOpacity>
                     </LinearGradient>
                 ))}
-            </View> */}
+            </View>
         </Dashboard>
     );
 }

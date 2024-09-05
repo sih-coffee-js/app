@@ -93,6 +93,12 @@ function AdminUsers({ navigation }) {
     }
   };
 
+  async function DetailedView(user) {
+    console.log(user);
+    console.log('------')
+    await AsyncStorage.setItem('userid', user);
+    mainnavigation.navigate('UserHome');
+  }
 
   return (
     <AdminDashboard bg="#f5f7fc">
@@ -104,8 +110,8 @@ function AdminUsers({ navigation }) {
         <View className="flex-wrap flex-row justify-center px-1">
           {data.map((user, index) => (
             <View style={styles.shadow} key={index} className="p-4 bg-white mb-2 mx-1 rounded-[10px] w-[46%]">
-              <TouchableOpacity className="h-auto w-full">
-                <Image source={ {uri: user.profilePicture} } img="h-12 w-12 rounded-[100px]" className="h-12 w-12 mx-auto pr-2 mb-1 rounded-full" />
+              <TouchableOpacity className="h-auto w-full" onPress={() => { DetailedView(user._id) }}>
+                <Image source={{ uri: user.profilePicture }} img="h-12 w-12 rounded-[100px]" className="h-12 w-12 mx-auto pr-2 mb-1 rounded-full" />
                 <Text className="text-center font-medium">{user.fullName}</Text>
                 <Text className="text-center font-medium">Working Time: {user.working}</Text>
               </TouchableOpacity>

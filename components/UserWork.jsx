@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Picker } from '@react-native-picker/picker';
-import Dashboard from './Dashboard';
+import User from './User';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
 import { useIsFocused } from "@react-navigation/native";
+import { useNavigation } from '@react-navigation/native';
 
 function DashboardWork({ navigation }) {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
@@ -14,7 +14,7 @@ function DashboardWork({ navigation }) {
   const [calendarKey, setCalendarKey] = useState(0);
   const [dataCalendar, setData] = useState({});
   const isFocused = useIsFocused();
-  const navigate = useNavigation();
+  const mainnavigation = useNavigation();
 
   const currentDate = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-01`;
 
@@ -91,7 +91,7 @@ function DashboardWork({ navigation }) {
   };
 
   async function fetchDetails() {
-    const id = await getData('id', null, '');
+    const id = await getData('userid', null, '');
     console.log(`id: ${id}`);
     try {
       const { data } = await axios.post('/api/record/get', {
@@ -127,10 +127,10 @@ function DashboardWork({ navigation }) {
     }
   }, [isFocused])
 
-  const navigateDetails = async (date) => {
+  const navigateDetails =  async (date) => {
     if (dataCalendar[date.dateString]) {
-      const id = await getData('id', null, '');
-      navigate.navigate('WorkHistory', { date, id });
+      const id = await getData('userid', null, '');
+      mainnavigation.navigate('WorkHistory', { date, id });
     }
   }
 
@@ -144,7 +144,7 @@ function DashboardWork({ navigation }) {
   };
 
   return (
-    <Dashboard navigation={navigation} bg="#f0f4f8">
+    <User navigation={navigation} bg="#f0f4f8">
       <View style={styles.container}>
         <Text style={styles.title}>Work Tracker</Text>
         <View style={styles.pickerContainer}>
@@ -183,7 +183,7 @@ function DashboardWork({ navigation }) {
           style={styles.calendar}
         />
       </View>
-    </Dashboard>
+    </User>
   );
 }
 
