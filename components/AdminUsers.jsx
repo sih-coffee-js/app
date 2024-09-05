@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from "@react-navigation/native";
 import LottieView from 'lottie-react-native';
+import LinearGradient from 'react-native-linear-gradient';
 
 function AdminUsers({ navigation }) {
   const mainnavigation = useNavigation();
@@ -20,57 +21,18 @@ function AdminUsers({ navigation }) {
       console.log(`id: ${id}`);
       const date = new Date();
       try {
-        const { data } = await axios.get('/api/users/')
+        const { data } = await axios.get('/api/users/');
         console.log(data);
         setData(data);
       } catch (e) {
         console.log(e);
       }
     }
-    function calculateWorkingHours(data) {
-      const checkIns = data.filter(event => event.type === 'CheckIn').sort((a, b) => new Date(a.time) - new Date(b.time));
-      const checkOuts = data.filter(event => event.type === 'CheckOut').sort((a, b) => new Date(a.time) - new Date(b.time));
 
-      if (checkIns.length > checkOuts.length) {
-        const lastCheckInDate = new Date(checkIns[checkIns.length - 1].time);
-        const currentDate = new Date();
-        if (
-          lastCheckInDate.getFullYear() !== currentDate.getFullYear() ||
-          lastCheckInDate.getMonth() !== currentDate.getMonth() ||
-          lastCheckInDate.getDate() !== currentDate.getDate()
-        ) {
-          const endOfDay = new Date(lastCheckInDate);
-          endOfDay.setHours(23, 59, 59, 999);
-          checkOuts.push({
-            time: endOfDay.toISOString()
-          });
-        } else {
-          checkOuts.push({
-            time: currentDate.toISOString()
-          });
-        }
-      }
-
-      let totalWorkingMilliseconds = 0;
-
-      for (let i = 0; i < checkIns.length && i < checkOuts.length; i++) {
-        const checkInTime = new Date(checkIns[i].time).getTime();
-        const checkOutTime = new Date(checkOuts[i].time).getTime();
-
-        if (checkOutTime > checkInTime) {
-          totalWorkingMilliseconds += checkOutTime - checkInTime;
-        }
-      }
-
-      const totalWorkingHours = Math.floor(totalWorkingMilliseconds / (1000 * 60 * 60));
-      const totalWorkingMinutes = Math.floor((totalWorkingMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
-
-      setHour(totalWorkingHours.toString() + ' hrs ' + totalWorkingMinutes.toString() + ' mins');
-    }
     if (isFocused) {
       fetchDetails();
     }
-  }, [isFocused])
+  }, [isFocused]);
 
   const getData = async (data, field, defaultvalue) => {
     try {
@@ -93,41 +55,129 @@ function AdminUsers({ navigation }) {
     }
   };
 
-
   return (
     <AdminDashboard bg="#f5f7fc">
-      <View style={styles.shadow} className="px-3 bg-white py-2 m-3 rounded-[10px]">
-        <Text className="text-[20px] text-[#343538] font-bold">Users</Text>
-      </View>
+      
+      <LinearGradient colors={['#ffffff', '#ffffff']} style={[styles.shadow, styles.headerContainer]}>
+        <Text style={styles.headerText}>Users</Text>
+      </LinearGradient>
 
-      {data.length > 0 ? <View className="flex-col justify-center pt-2 -mt-3">
-        <View className="flex-wrap flex-row justify-center px-1">
-          {data.map((user, index) => (
-            <View style={styles.shadow} key={index} className="p-4 bg-white mb-2 mx-1 rounded-[10px] w-[46%]">
-              <TouchableOpacity className="h-auto w-full">
-                <Image source={ {uri: user.profilePicture} } img="h-12 w-12 rounded-[100px]" className="h-12 w-12 mx-auto pr-2 mb-1 rounded-full" />
-                <Text className="text-center font-medium">{user.fullName}</Text>
-                <Text className="text-center font-medium">Working Time: {user.working}</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+      {data.length > 0 ? (
+        <View style={styles.userListContainer}>
+          <View style={styles.userList}>
+            {data.map((user, index) => (
+              <View style={[styles.shadow, styles.userCard]} key={index}>
+                <TouchableOpacity style={styles.userCardContent} activeOpacity={0.9}>
+                  <Image 
+                    source={{ uri: user.profilePicture }} 
+                    style={styles.userImage} 
+                  />
+                  <Text style={styles.userName}>{user.fullName}</Text>
+                  <Text style={styles.workingTime}>Working Time: {user.working}</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
         </View>
-      </View> :
-        <View>
-          <LottieView source={require('../assets/lottie/404.json')} autoPlay loop className="w-72 h-72 mx-auto" />
-          <Text className="text-center font-bold text-xl -mt-12 text-[#36454f]">No Users Found</Text>
-        </View>}
+      ) : (
+        <View style={styles.noUsersContainer}>
+          <LottieView 
+            source={require('../assets/lottie/404.json')} 
+            autoPlay 
+            loop 
+            style={styles.lottieAnimation} 
+          />
+          <Text style={styles.noUsersText}>No Users Found</Text>
+        </View>
+      )}
     </AdminDashboard>
   );
 }
 
 const styles = StyleSheet.create({
+  headerContainer: {
+    padding: 10,
+    borderRadius: 12,
+    marginHorizontal: 12,
+    marginVertical: 8,
+    elevation: 12,
+  },
+  headerText: {
+    fontSize: 22,
+    color: '#343538',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  userListContainer: {
+    paddingVertical: 20,
+    backgroundColor: '#f7f9fc',
+    borderRadius: 20,
+    marginHorizontal: 10,
+  },
+  userList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 8,
+  },
+  userCard: {
+    width: '48%',
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    overflow: 'hidden',
+    elevation: 8,
+  },
+  userCardContent: {
+    alignItems: 'center',
+    transform: [{ translateY: 0 }],
+    transition: 'transform 0.2s ease-in-out',
+  },
+  userCardContentHover: {
+    transform: [{ translateY: -10 }],
+  },
+  userImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginBottom: 8,
+    borderWidth: 2,
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  workingTime: {
+    fontSize: 14,
+    color: '#808080',
+    textAlign: 'center',
+  },
+  noUsersContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  lottieAnimation: {
+    width: 250,
+    height: 250,
+  },
+  noUsersText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#36454f',
+    marginTop: -32,
+    textAlign: 'center',
+  },
   shadow: {
     elevation: 10,
-    shadowColor: "rgba(0,0,0,0.2)",
-    shadowRadius: 7,
-    shadowOpacity: .5,
-    shadowOffset: { width: 0, height: 10 }
+    shadowColor: 'rgba(0,0,0,0.3)',
+    shadowRadius: 8,
+    shadowOpacity: 0.7,
+    shadowOffset: { width: 0, height: 10 },
   },
 });
 
