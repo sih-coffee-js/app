@@ -144,7 +144,7 @@ function DashboardWork({ navigation }) {
 
   return (
     <Dashboard navigation={navigation} bg="#f0f4f8">
-      <View style={styles.container}>
+      {/* <View style={styles.container}>
         <Text style={styles.title}>Work Tracker</Text>
         <View style={styles.pickerContainer}>
           <Picker
@@ -181,7 +181,7 @@ function DashboardWork({ navigation }) {
           dayComponent={({ date, state }) => renderDay(date)}
           style={styles.calendar}
         />
-      </View>
+      </View> */}
     </Dashboard>
   );
 }

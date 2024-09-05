@@ -18,9 +18,14 @@ var l1;
 var l2;
 var id;
 
+var refresh;
+var setRefresh;
+
 function Dashboard(props) {
     const [name, setName] = useState('');
     const navigation = useNavigation();
+    refresh=props.refresh;
+    setRefresh=props.setRefresh;
 
     const [locationStarted, setLocationStarted] = React.useState(false);
 
@@ -147,13 +152,18 @@ TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
 
         try {
             const res = await axios.post('/api/record/track', { userId: id, longitude: long, latitude: lat })
-            //console.log(res.data);
+            console.log(res.data);
         } catch (e) {
             console.log(e);
         }
-        // console.log(
-        //     `${new Date(Date.now()).toLocaleString()}: ${lat},${long}`
-        // );
+
+        if(refresh) {
+            setRefresh(!refresh);
+        }
+
+        console.log(
+            `${new Date(Date.now()).toLocaleString()}: ${lat},${long}`
+        );
     }
 });
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import Dashboard from './Dashboard';
-<<<<<<< HEAD
 import LinearGradient from 'react-native-linear-gradient';
 
 function DashboardTools({ navigation }) {
@@ -45,7 +44,7 @@ function DashboardTools({ navigation }) {
 
     return (
         <Dashboard navigation={navigation} bg="#f5f7fc">
-            <View style={styles.container}>
+            {/* <View style={styles.container}>
                 {users.map((user, index) => (
                     <LinearGradient 
                         key={index}
@@ -57,26 +56,7 @@ function DashboardTools({ navigation }) {
                         </TouchableOpacity>
                     </LinearGradient>
                 ))}
-            </View>
-=======
-import { useState, useEffect } from 'react';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-
-function DashboardTools({ navigation }) {
-    return (
-        <Dashboard navigation={navigation} bg="#f5f7fc">
-            <MapView
-                style={styles.map}
-                provider={PROVIDER_GOOGLE}
-                region={{
-                    latitude: 37.78825,
-                    longitude: -122.4324,
-                    latitudeDelta: 0.015,
-                    longitudeDelta: 0.0121,
-                }}
-            >
-            </MapView>
->>>>>>> 527e2c8d7437d73a552c08a62bd2378067a67597
+            </View> */}
         </Dashboard>
     );
 }

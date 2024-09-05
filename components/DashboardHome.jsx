@@ -13,6 +13,7 @@ function DashboardHome({ navigation }) {
     const isFocused = useIsFocused();
     const [data, setData] = useState([]);
     const [hour, setHour] = useState('');
+    const [refresh, setRefresh] = useState(true);
 
     useEffect(() => {
         async function fetchDetails() {
@@ -75,7 +76,7 @@ function DashboardHome({ navigation }) {
         if (isFocused) {
             fetchDetails();
         }
-    }, [isFocused])
+    }, [isFocused,refresh])
 
     const getData = async (data, field, defaultvalue) => {
         try {
@@ -100,7 +101,7 @@ function DashboardHome({ navigation }) {
 
 
     return (
-        <Dashboard bg="#f5f7fc">
+        <Dashboard bg="#f5f7fc" refresh={refresh} setRefresh={setRefresh}>
             <View style={styles.shadow} className="px-3 bg-white py-2 m-3 rounded-[10px]">
                 <Text className="text-[20px] text-[#343538] font-bold">Today's Status</Text>
                 <Text className="text-[16px] text-[#0E46A3] font-medium">Working for {hour}</Text>
